@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <table class="table">
+
+        <tbody>
+            {% for node in nodes %}
+                <tr>
+                    <td>{{ node.name }}</td>
+                    <td>
+                        <a href="{% url 'edit-node' node.id %}">Edit</a>
+                    </td>
+                    <td>
+                        <form method="post" action={% url 'delete-node' node.id %}>
+                            <input type="submit" class="btn-block" value="Delete">
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <form method="get" action={% url 'edit-node' %}>
+        <input type="submit" class="btn-success" value="Create new node">
+    </form>
+{% endblock %}

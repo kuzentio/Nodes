@@ -1,0 +1,5 @@
+.env
+.idea
+*.pyc
+Nodes/app/nodes/migrations/0001_initial.py
+
