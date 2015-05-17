@@ -12,14 +12,19 @@
                     </td>
                     <td>
                         <form method="post" action={% url 'delete-node' node.id %}>
-                            <input type="submit" class="btn-block" value="Delete">
+                            <input type="submit" class="btn-link" value="Delete">
                         </form>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-    <form method="get" action={% url 'edit-node' %}>
-        <input type="submit" class="btn-success" value="Create new node">
-    </form>
+
+    <span>
+        <a href="{% url 'create-node' %}" class="pull-left">Создать узел</a>
+        <a href="{% url 'build-weight-table' %}" class="pull-right">Посторить таблицу</a>
+    </span>
+
+
 {% endblock %}
+

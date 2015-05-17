@@ -5,13 +5,22 @@
 
         {{ connected_nodes }}
 
+
+        <p>--------------</p>
         <form method="post">
-            <div>Название:
-                <input type="text" value={{ node.name }}>
-            </div>
+
+
+            <span>
+                {{ node_form.as_p }}
+                    {% if node_form.errors %}
+                        {% for error in node_form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    {% endif %}
+            </span>
             <div>Связи:
                 {% for node in nodes %}
-                    <div class="container">
+                    <div>
                         {{ node.name }}<input type="checkbox" >
                     </div>
                 {% endfor %}
@@ -19,7 +28,7 @@
 
 
 
-            <div><input type="submit" class="btn-success" value="Сохранить"></div>
+            <div><input type="submit" class="glyphicon-link" value="Сохранить"></div>
         </form>
 
 {% endblock %}

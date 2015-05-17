@@ -7,6 +7,9 @@ class Unit(models.Model):
     def __unicode__(self):
         return unicode(self.name)
 
+    class Meta:
+        ordering = ('name', )
+
 
 class Relationship(models.Model):
     start = models.ForeignKey(Unit, related_name='start_id', default=None)

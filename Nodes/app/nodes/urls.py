@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^nodes/(?P<node_id>\d+)/delete/$', views.remove_node, name='delete-node'),
     url(r'^nodes/(?P<node_id>\d+)/edit/$', views.edit_node, name='edit-node'),
     url(r'^nodes/create/$', views.create_node, name='create-node'),
+    url(r'^nodes/weight-table/$', views.weight_table, name='build-weight-table'),
 ]

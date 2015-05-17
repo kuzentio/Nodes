@@ -20,6 +20,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_nose',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -74,3 +75,15 @@ STATIC_URL = '/static/'
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR,  'templates'),
 )
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'loggers': {
+        'django': {
+            'level': 'ERROR',
+        }
+    }
+}
