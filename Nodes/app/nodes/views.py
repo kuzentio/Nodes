@@ -39,7 +39,7 @@ def create_node(request):
     node_form = NodeForm(request.POST or None)
     context = {
         'node_form': node_form,
-               }
+            }
     if node_form.is_valid():
         models.Unit.objects.create(name=node_form.cleaned_data['name'])
         return redirect('/')
@@ -55,3 +55,4 @@ def weight_table(request):
 def remove_node(request, node_id):
     models.Unit.objects.get(id=node_id).delete()
     return HttpResponseRedirect('/')
+
