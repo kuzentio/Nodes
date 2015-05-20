@@ -8,11 +8,11 @@
                 <tr>
                     <td>{{ node.name }}</td>
                     <td>
-                        <a href="{% url 'edit-node' node.id %}">Edit</a>
+                        <a href="{% url 'edit-node' node.id %}">Редактировать</a>
                     </td>
                     <td>
                         <form method="post" action={% url 'delete-node' node.id %}>
-                            <input type="submit" class="btn-link" value="Delete">
+                            <input type="submit" class="btn-link" value="Удалить">
                         </form>
                     </td>
                 </tr>

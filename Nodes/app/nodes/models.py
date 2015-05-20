@@ -18,4 +18,6 @@ class Relationship(models.Model):
 
     def __unicode__(self):
         return u'%s - %s (%s)' % (self.start, self.end, self.value)
+    class Meta:
+        ordering = ('start',)
 

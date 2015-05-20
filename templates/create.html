@@ -3,7 +3,16 @@
 {% block content %}
     <form method="post">
             {{ node_form }}
-        <div><input type="submit" class="glyphicon-link" value="Сохранить"></div>
+
+    <div>Связи:
+        {% for node in nodes %}
+            <div>
+                {{ node.name }}<input type="checkbox" >
+            </div>
+        {% endfor %}
+    </div>
+
+    <div><input type="submit" class="glyphicon-link" value="Сохранить"></div>
     </form>
 
 {% endblock %}

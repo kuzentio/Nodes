@@ -5,7 +5,7 @@ from django.views.decorators.http import require_POST
 
 from Nodes.app.nodes import models
 from Nodes.app.nodes import service
-from Nodes.app.nodes import temp
+
 
 
 
@@ -18,7 +18,11 @@ def edit_node(request, node_id):
     node_form = NodeForm(request.POST or None)
     this_node = models.Unit.objects.get(id=node_id)
     all_other_nodes = models.Unit.objects.all().exclude(id=node_id)
-    connected_nodes = temp.get_node_relations(this_node)
+    connected_nodes = {}
+
+    for connected_node in service.get_node_relations(this_node):
+        connected_nodes[connected_node] = service.is_direct_node(this_node, connected_node)
+
     node_form.initial = {'name': this_node.name}
     context = {
         'node_form': node_form,
@@ -37,8 +41,10 @@ def edit_node(request, node_id):
 
 def create_node(request):
     node_form = NodeForm(request.POST or None)
+    all_nodes = models.Unit.objects.all()
     context = {
         'node_form': node_form,
+        'nodes': all_nodes,
             }
     if node_form.is_valid():
         models.Unit.objects.create(name=node_form.cleaned_data['name'])

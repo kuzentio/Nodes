@@ -20,13 +20,25 @@
             </span>
             <div>Связи:
                 {% for node in nodes %}
-                    <div>
-                        {{ node.name }}<input type="checkbox" >
-                    </div>
+                    {% if node in connected_nodes %}
+                        {% for connected_node, direct in connected_nodes.items %}
+                            {% if node == connected_node and direct %}
+                            <div>
+                                {{ node.name }}<input type="checkbox" checked>
+                            </div>
+                            {% elif node == connected_node %}
+                                <div>
+                                {{ node.name }}<input type="checkbox" checked disabled>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div>
+                            {{ node.name }}<input type="checkbox" >
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
-
-
 
             <div><input type="submit" class="glyphicon-link" value="Сохранить"></div>
         </form>
