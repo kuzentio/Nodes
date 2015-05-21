@@ -3,66 +3,85 @@ from django.test import TestCase
 from Nodes.app.nodes import models, service
 
 
-class TestGetNodeRelations(TestCase):
-    def test_1_relation(self):
-        node1 = models.Unit.objects.create(name='A')
-        node2 = models.Unit.objects.create(name='B')
+class TestGetDirectConnectedNodes(TestCase):
 
-        models.Relationship.objects.create(start=node1, end=node2, value=1)
-
-        result = list(service.get_node_relations(node1))
-
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].node, node2)
-        self.assertEqual(result[0].through_nodes, {node1})
-
-    def test_2_relations(self):
+    def test_return_1_node(self):
         node1 = models.Unit.objects.create(name='A')
         node2 = models.Unit.objects.create(name='B')
         node3 = models.Unit.objects.create(name='C')
 
-        models.Relationship.objects.create(start=node1, end=node2, value=1)
-        models.Relationship.objects.create(start=node3, end=node2, value=1)
+        models.Relationship.objects.create(start=node1, end=node2, value=11)
+        models.Relationship.objects.create(start=node2, end=node3, value=12)
 
-        import ipdb; ipdb.set_trace()
-        result = list(service.get_node_relations(node1))
+        result = service.get_direct_connected_nodes(node3)
 
-        self.assertEqual(len(result), 2)
+        self.assertEqual(result, [node2])
 
-        for node_relation in result:
-            if node_relation.node == node2:
-                self.assertEqual(node_relation.through_nodes, {node1, node2})
-            elif node_relation.node == node3:
-                self.assertEqual(node_relation.through_nodes, {node2})
-            else:
-                raise Exception("Unexpected node: %s" % node_relation.node)
-
-    def _test_test(self):
+    def test_return_2_nodes(self):
         node1 = models.Unit.objects.create(name='A')
         node2 = models.Unit.objects.create(name='B')
-        # node3 = models.Unit.objects.create(name='C')
-        # node4 = models.Unit.objects.create(name='D')
+        node3 = models.Unit.objects.create(name='C')
 
-        models.Relationship.objects.create(start=node1, end=node2, value=1)
-        # models.Relationship.objects.create(start=node3, end=node2, value=1)
-        # models.Relationship.objects.create(start=node4, end=node3, value=1)
+        models.Relationship.objects.create(start=node1, end=node2, value=11)
+        models.Relationship.objects.create(start=node2, end=node3, value=12)
 
-        result = service.get_node_relations(node1)
+        result = service.get_direct_connected_nodes(node2)
 
-        self.fail(result)
+        self.assertEqual(result, [node1, node3])
 
 
-class TestGetNodeRelationsOld(TestCase):
-    def test_test(self):
+class TestCleanNotActualNodes(TestCase):
+
+    def test_create_actual_relation(self):
+        node1 = models.Unit.objects.create(name='A')
+        node2 = models.Unit.objects.create(name='B')
+        node3 = models.Unit.objects.create(name='C')
+
+        service.setup_actual_relations(node2, [node1.id, node3.id])
+
+        self.assertEqual(len(models.Relationship.objects.all()), 2)
+
+    def test_returning_different_elements(self):
+        actual = [1, 2, 3]
+        current = [3, 4, 5]
+
+        res = service.find_different_elements(actual, current)
+
+        self.assertEqual(res, [1, 2])
+
+    def test_return_relation_between_nodes(self):
+        node1 = models.Unit.objects.create(name='A')
+        node2 = models.Unit.objects.create(name='B')
+
+        models.Relationship.objects.create(start=node2, end=node1, value=11)
+
+        result = service.relation_between_nodes(node1, node2)
+
+        self.assertEqual(result, models.Relationship.objects.get(start=node2, end=node1))
+
+    def test_deleting_not_actual_relations(self):
+        node1 = models.Unit.objects.create(name='A')
+        node2 = models.Unit.objects.create(name='B')
+        node3 = models.Unit.objects.create(name='C')
+
+        models.Relationship.objects.create(start=node1, end=node2, value=11)
+        models.Relationship.objects.create(start=node2, end=node3, value=14)
+
+        service.setup_actual_relations(node2, [node3.id])
+
+        self.assertEqual(len(models.Relationship.objects.all()), 1)
+
+    def test_node_relations(self):
         node1 = models.Unit.objects.create(name='A')
         node2 = models.Unit.objects.create(name='B')
         node3 = models.Unit.objects.create(name='C')
         node4 = models.Unit.objects.create(name='D')
+        node5 = models.Unit.objects.create(name='E')
 
-        models.Relationship.objects.create(start=node1, end=node2, value=1)
-        models.Relationship.objects.create(start=node3, end=node2, value=1)
-        models.Relationship.objects.create(start=node4, end=node3, value=1)
+        models.Relationship.objects.create(start=node1, end=node2, value=11)
+        models.Relationship.objects.create(start=node2, end=node3, value=14)
+        models.Relationship.objects.create(start=node3, end=node4, value=14)
 
-        result = service.get_node_relations_old(node1)
+ #       result = service.get_node_relations(node1)
 
-        self.assertEqual(result, {node2, node3, node4})
+#        self.assertEqual(result, [])

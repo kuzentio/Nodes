@@ -4,12 +4,9 @@ from django import forms
 
 
 class NodeForm(forms.Form):
-    name = forms.CharField(label='Название:', max_length=100)
+    name = forms.CharField(label='Название', max_length=30)
 
     class Meta:
         model = models.Unit
-
-class RelationsForm(forms.Form):
-    pass
 
 

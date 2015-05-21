@@ -5,38 +5,32 @@
 
         {{ connected_nodes }}
 
-
+        {{ direct_connected_nodes }}
         <p>--------------</p>
         <form method="post">
 
-
             <span>
-                {{ node_form.as_p }}
-                    {% if node_form.errors %}
-                        {% for error in node_form.non_field_errors %}
+
+                {{ node_name_form.as_p }}
+                    {% if node_name_form.errors %}
+                        {% for error in node_name_form.non_field_errors %}
                             {{ error }}
                         {% endfor %}
                     {% endif %}
             </span>
+
             <div>Связи:
-                {% for node in nodes %}
-                    {% if node in connected_nodes %}
-                        {% for connected_node, direct in connected_nodes.items %}
-                            {% if node == connected_node and direct %}
-                            <div>
-                                {{ node.name }}<input type="checkbox" checked>
-                            </div>
-                            {% elif node == connected_node %}
-                                <div>
-                                {{ node.name }}<input type="checkbox" checked disabled>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        <div>
-                            {{ node.name }}<input type="checkbox" >
-                        </div>
-                    {% endif %}
+                {% for other_node in other_nodes %}
+                    <div>
+                        {{ other_node.name }}
+                        <input type="checkbox"
+                               name="{{ other_node.id }}"
+                            {% if other_node in direct_connected_nodes and other_node in connected_nodes%}
+                                 checked
+                            {% elif other_node in connected_nodes %}
+                                name="{{ other_node.id }}" checked disabled
+                            {% endif %}>
+                    </div>
                 {% endfor %}
             </div>
 
