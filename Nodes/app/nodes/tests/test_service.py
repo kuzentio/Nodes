@@ -85,3 +85,20 @@ class TestCleanNotActualNodes(TestCase):
  #       result = service.get_node_relations(node1)
 
 #        self.assertEqual(result, [])
+
+
+class TestRelations(TestCase):
+
+    def test_return_weight_of_relation(self):
+        node1 = models.Unit.objects.create(name='A')
+        node2 = models.Unit.objects.create(name='B')
+        node3 = models.Unit.objects.create(name='C')
+
+
+        models.Relationship.objects.create(start=node1, end=node2, value=11)
+        models.Relationship.objects.create(start=node2, end=node3, value=14)
+
+        weight = service.find_weight_direct_relations(node2, [node1, node3])
+
+        self.assertEqual(weight, {node1: 11, node3:14})
+

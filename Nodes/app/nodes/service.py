@@ -102,7 +102,7 @@ def setup_actual_relations(node, actual_nodes_ids):
 
     new_relations_ids = find_different_elements(actual_nodes_ids, current_connected_nodes_ids)
     for new_relation in new_relations_ids:
-        models.Relationship.objects.create(start=node, end=models.Unit.objects.get(id=new_relation), value=1)
+        models.Relationship.objects.create(start=node, end=models.Unit.objects.get(id=new_relation), value=0)
 
     not_actual_ids = find_different_elements(current_connected_nodes_ids, actual_nodes_ids)
 
@@ -130,6 +130,17 @@ def relation_between_nodes(node1, node2):
     except models.Relationship.DoesNotExist:
         pass
 
+
+def find_weight_direct_relations(current_node, direct_related_nodes):
+    related_nodes = {}
+    for direct_related_node in direct_related_nodes:
+        relation = models.Relationship.objects.filter(
+            Q(start=direct_related_node, end=current_node) |
+            Q(start=current_node, end=direct_related_node)
+        )
+        related_nodes[direct_related_node] = relation[0].value
+
+    return related_nodes
 
 
 

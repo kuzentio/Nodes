@@ -4,19 +4,15 @@
 {% block content %}
 
         {{ connected_nodes }}
-
         {{ direct_connected_nodes }}
+        {{ weight_direct_nodes }}
         <p>--------------</p>
         <form method="post">
 
             <span>
 
-                {{ node_name_form.as_p }}
-                    {% if node_name_form.errors %}
-                        {% for error in node_name_form.non_field_errors %}
-                            {{ error }}
-                        {% endfor %}
-                    {% endif %}
+                {{ node_name_form }}
+                {{ node_name_form.non_field_errors }}
             </span>
 
             <div>Связи:
@@ -26,10 +22,22 @@
                         <input type="checkbox"
                                name="{{ other_node.id }}"
                             {% if other_node in direct_connected_nodes and other_node in connected_nodes%}
-                                 checked
+                                 checked>
+                                <input type="text" value=
+                                    {% for node, weight in weight_direct_nodes.items %}
+                                        {% if other_node == node %}
+                                            {{ weight }}
+                                        {% endif %}
+                                    {% endfor %}
+                                >
                             {% elif other_node in connected_nodes %}
                                 name="{{ other_node.id }}" checked disabled
-                            {% endif %}>
+                            {% endif %}
+
+
+
+
+
                     </div>
                 {% endfor %}
             </div>
