@@ -17,32 +17,32 @@
 
             <div>Связи:
                 {% for other_node in other_nodes %}
-                    <div>
+                    <div class="node-information">
                         {{ other_node.name }}
-                        <input type="checkbox"
-                               name="{{ other_node.id }}"
+
+                        <input class="node" type="checkbox" name="{{ other_node.id }}"
                             {% if other_node in direct_connected_nodes and other_node in connected_nodes%}
-                                 checked>
-                                <input type="text" value=
-                                    {% for node, weight in weight_direct_nodes.items %}
-                                        {% if other_node == node %}
-                                            {{ weight }}
-                                        {% endif %}
-                                    {% endfor %}
-                                >
+                                 checked >
                             {% elif other_node in connected_nodes %}
-                                name="{{ other_node.id }}" checked disabled
+                                checked disabled >
+                            {% else %}
+                                >
                             {% endif %}
 
-
-
+                        <input class="weight" type="text" name="{{ other_node.id }}" value=
+                            {% for node, weight in weight_direct_nodes.items %}
+                                {% if other_node == node %}
+                                    {{ weight }}
+                                {% endif %}
+                            {% endfor %}
+                        >
 
 
                     </div>
                 {% endfor %}
             </div>
 
-            <div><input type="submit" class="glyphicon-link" value="Сохранить"></div>
+            <div><input id="submit" type="submit" class="glyphicon-link" value="Сохранить"></div>
         </form>
 
 {% endblock %}

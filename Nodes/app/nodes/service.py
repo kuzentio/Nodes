@@ -93,7 +93,7 @@ def get_direct_connected_nodes(start_node):
     return result_nodes
 
 
-def setup_actual_relations(node, actual_nodes_ids):
+def setup_actual_relations_old(node, actual_relations):
     current_connected_nodes = get_connected_nodes(node)
     current_connected_nodes_ids = []
 

@@ -42,13 +42,20 @@ def edit_node(request, node_id):
             node.save()
 
         actual_ids = []
+        actual_weights = {}
+        for id, weight in request.POST.iteritems():
+            try:
+                actual_weights[int(id)] = int(weight)
+            except:
+                continue
+
         for node_id in request.POST.iterkeys():
             try:
                 new_node_id = int(node_id)
             except:
                 continue
             actual_ids.append(new_node_id)
-
+        import ipdb; ipdb.set_trace()
         service.setup_actual_relations(current_node, actual_ids)
         return redirect('/')
     return render_to_response('edit.html', context=context)
