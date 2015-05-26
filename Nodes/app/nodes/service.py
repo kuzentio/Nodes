@@ -94,39 +94,75 @@ def get_direct_connected_nodes(start_node):
 
 
 def setup_actual_relations_old(node, actual_relations):
-    current_connected_nodes = get_connected_nodes(node)
+    current_connected_nodes = get_direct_connected_nodes(node)
     current_connected_nodes_ids = []
+    actual_nodes_ids = []
+
+    for actual_node_id in actual_relations.iterkeys():
+        actual_nodes_ids.append(actual_node_id)
 
     for current_connected_node in current_connected_nodes:
         current_connected_nodes_ids.append(current_connected_node.id)
 
-    new_relations_ids = find_different_elements(actual_nodes_ids, current_connected_nodes_ids)
-    for new_relation in new_relations_ids:
-        models.Relationship.objects.create(start=node, end=models.Unit.objects.get(id=new_relation), value=0)
-
     not_actual_ids = find_different_elements(current_connected_nodes_ids, actual_nodes_ids)
-
     for not_actual_id in not_actual_ids:
         not_actual_relation = relation_between_nodes(node, models.Unit.objects.get(id=not_actual_id))
         if not_actual_relation:
             not_actual_relation.delete()
 
+    entered_elements = find_entered_elements(current_connected_nodes_ids, actual_nodes_ids)
+    for entered_element_id in entered_elements:
+        models.Relationship.objects.update(start=node, end=models.Unit.objects.get(id=entered_element_id), value=actual_relations[entered_element_id])
 
-def find_different_elements(list1, list2):
-    different_elements = []
-    for element in list1:
-        if element not in list2:
-            different_elements.append(element)
-    return different_elements
+    #direct_connected_nodes = get_direct_connected_nodes(node)
 
+
+    new_related_unit_ids = find_different_elements(actual_nodes_ids, current_connected_nodes_ids)
+    for new_relation_id in new_related_unit_ids:
+        models.Relationship.objects.create(start=node, end=models.Unit.objects.get(id=new_relation_id), value=actual_relations[new_relation_id])
+
+
+def setup_actual_relations(node, actual_node_weighs):
+    current_connected_nodes_ids = set([n.id for n in get_connected_nodes(node)])
+    current_direct_connected_nodes_ids = set([n.id for n in get_direct_connected_nodes(node)])
+    actual_node_ids = set(actual_node_weighs.keys())
+
+    nodes_to_delete = current_direct_connected_nodes_ids - actual_node_ids
+    nodes_to_update = current_direct_connected_nodes_ids & actual_node_ids
+    nodes_to_create = actual_node_ids - current_direct_connected_nodes_ids
+
+    _delete_relations(node, nodes_to_delete)
+    _update_relations(node, nodes_to_update, actual_node_weighs)
+    _create_relations(node, nodes_to_create, actual_node_weighs)
+
+
+def _delete_relations(node, nodes_to_delete):
+    for node_to_delete in nodes_to_delete:
+        old_node = models.Unit.objects.get(id=node_to_delete)
+        models.Relationship.objects.get(Q(start=node, end=old_node) | Q(start=old_node, end=node)).delete()
+
+
+def _update_relations(node, nodes_to_update, actual_node_weighs):
+
+    for node_to_update in nodes_to_update:
+        related_node = models.Unit.objects.get(id=node_to_update)
+        relation = models.Relationship.objects.get(Q(start=node, end=related_node) |
+                                        Q(start=related_node, end=node))
+        relation.value = actual_node_weighs[node_to_update]
+        relation.save()
+
+
+def _create_relations(node, nodes_to_create, actual_node_weighs):
+    for node_to_create in nodes_to_create:
+        related_node = models.Unit.objects.get(id=node_to_create)
+        models.Relationship.objects.create(start=node,
+                                           end=related_node,
+                                           value=actual_node_weighs[node_to_create])
 
 def relation_between_nodes(node1, node2):
     try:
         return models.Relationship.objects.get(
-            (Q(start=node1) & Q(end=node2))
-            |
-            (Q(start=node2) & Q(end=node1))
-        )
+            (Q(start=node1) & Q(end=node2)) | (Q(start=node2) & Q(end=node1)))
     except models.Relationship.DoesNotExist:
         pass
 

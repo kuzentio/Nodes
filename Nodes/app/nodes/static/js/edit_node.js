@@ -26,11 +26,11 @@ $(document).ready(function() {
 
         $('.node-information').each(function () {
 
-            if (!$.isNumeric($(this).find('input.weight').val())){
+            if (!$.isNumeric($(this).find('input.weight').val()) ){
                 $(this).remove()
             }
-
         })
+        $('input.weight:hidden').parent().remove()
     });
 
 
