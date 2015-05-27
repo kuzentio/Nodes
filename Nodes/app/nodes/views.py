@@ -22,7 +22,7 @@ def edit_node(request, node_id):
     connected_nodes = service.get_connected_nodes(current_node)
 
     direct_connected_nodes = service.get_direct_connected_nodes(current_node)
-    weight_direct_nodes = service.find_weight_direct_relations(current_node, direct_connected_nodes)
+    weight_direct_nodes = service.find_weight_direct_relations(current_node)
 
     context = {
         'node_name_form': node_name_form,
@@ -41,7 +41,6 @@ def edit_node(request, node_id):
             node.name = node_name_form.cleaned_data['name']
             node.save()
 
-
         actual_weights = {}
         for id, weight in request.POST.iteritems():
             try:
@@ -54,28 +53,44 @@ def edit_node(request, node_id):
 
 
 def create_node(request):
-    node_form = NodeForm(request.POST or None)
-    all_nodes = models.Unit.objects.all()
+    node_name_form = NodeForm(request.POST or None)
+
+    nodes = models.Unit.objects.all()
+
     context = {
-        'node_form': node_form,
-        'nodes': all_nodes,
+        'node_name_form': node_name_form,
+        'other_nodes': nodes,
             }
-    if node_form.is_valid():
-        models.Unit.objects.create(name=node_form.cleaned_data['name'])
+    if request.method == 'POST':
+        if not node_name_form.is_valid():
+            return render_to_response('edit.html', context=context)
+        else:
+            current_node = models.Unit.objects.create(name=node_name_form.cleaned_data['name'])
+
+            actual_weights = {}
+            for id, weight in request.POST.iteritems():
+                try:
+                    actual_weights[int(id)] = int(weight)
+                except:
+                    continue
+            service.setup_actual_relations(current_node, actual_weights)
         return redirect('/')
 
-    return render_to_response('create.html', context)
+    return render_to_response('edit.html', context)
 
 
 def weight_table(request):
+    nodes = models.Unit.objects.all()
+    direct_relations = {}
+    for node in nodes:
+        direct_relations[node] = service.get_direct_relations(node)
 
-    all_nodes = models.Unit.objects.all()
-    relations = {}
     context = {
-        'relations': relations,
-        'all_nodes': all_nodes,
-    }
-    render_to_response('weight_table.html', context)
+        'nodes': nodes,
+        'direct_relations': direct_relations,
+                }
+
+    return render_to_response('weight_table.html', context)
 
 
 @require_POST

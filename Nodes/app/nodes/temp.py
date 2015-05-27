@@ -1,21 +1,43 @@
-from Nodes.app.nodes import models
-from django.db.models import Q
+
+nodes = ['A', 'B', 'C', 'D']
+weights = {'A': {'B': 1,},
+           'B': {
+                 'A': 1,
+                 'C': 3,
+                },
+             'C': {'B': 3,
+                   'D': 7,
+                   },
+             'D': {
+                 'C': 7,
+             }
+    }
+
+for node in nodes:
+    print node,
+    for nod in nodes:
+        if nod in weights[node]:
+            print weights[node][nod],
+        else:
+            print '0',
+    print ''
+
+print ''
+print ''
 
 
-def get_node_relations(start_node, result_nodes=None):
-    result_nodes = result_nodes or {start_node}
+for node in nodes:
+    print node,
+    for nod in nodes:
+        print weights[node].get(nod, 0),
+    print ''
 
-    relations = models.Relationship.objects.filter(Q(start=start_node) | Q(end=start_node))
 
-    for relation in relations:
-        connected_node = relation.end if relation.start == start_node else relation.start
 
-        if connected_node in result_nodes:
-            continue
 
-        result_nodes.add(connected_node)
-        result_nodes.update(
-            get_node_relations(connected_node, result_nodes=result_nodes)
-        )
 
-    return result_nodes - {start_node}
+
+
+
+
+
