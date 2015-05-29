@@ -137,21 +137,6 @@ class TestSetup(TestCase):
         self.assertEqual(models.Relationship.objects.get(start=node2, end=node3).value, 2)
         self.assertEqual(models.Relationship.objects.get(start=node2, end=node4).value, 3)
 
-# class TestGetNodeRelations(TestCase):
-#     def test_collecting_path_to_node(self):
-#         node1 = models.Unit.objects.create(name='A')
-#         node2 = models.Unit.objects.create(name='B')
-#         node3 = models.Unit.objects.create(name='C')
-#         node4 = models.Unit.objects.create(name='D')
-#
-#         models.Relationship.objects.create(start=node1, end=node2, value=1)
-#         models.Relationship.objects.create(start=node2, end=node3, value=1)
-#         models.Relationship.objects.create(start=node3, end=node4, value=1)
-#
-#         result = service.get_node_relations(node1)
-#
-#         self.assertEquals(result, 1)
-
 
 class TestDirectRelations(TestCase):
     def test_direct_relations(self):
@@ -168,7 +153,8 @@ class TestDirectRelations(TestCase):
 
         self.assertEquals(result, {node1: models.Relationship.objects.get(start=node1,
                                                                           end=node2),
-                                   node3: models.Relationship.objects.get(start=node2, end=node3)})
+                                   node3: models.Relationship.objects.get(start=node2,
+                                                                          end=node3)})
 
 
 

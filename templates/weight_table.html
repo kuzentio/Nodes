@@ -1,20 +1,36 @@
 {% extends 'base.html' %}
 
+{% load weights_extras %}
+
 {% block content %}
 
-    <table class="table">
-
-        <tbody>
+<table class="table">
+    <tbody>
+        <tr>
+            <th> </th>
             {% for node in nodes %}
-                <tr>
-                    <td>{{ node.name }}</td>
-                    <td>
-                        {{ direct_relations.node }}
-                    </td>
-                </tr>
+                <th> {{ node.name }} </th>
             {% endfor %}
-        </tbody>
-    </table>
+        </tr>
+        <tr>
+            {% for node in nodes %}
+            <th> {{ node.name }}</th>
+                {% with direct_relations|value_by_key:node as direct_relations %}
+                    {% for inner_node in nodes %}
+                        {% if inner_node in direct_relations %}
+                            {% with direct_relations|value_by_key:inner_node as inner_relation %}
+                                <td>{{ inner_relation.value }}</td>
+                            {% endwith %}
+                        {% else %}
+                            <td>0</td>
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+        </tr>
+            {% endfor %}
+    </tbody>
+</table>
+
 
 
 

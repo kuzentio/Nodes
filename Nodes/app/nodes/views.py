@@ -82,13 +82,13 @@ def create_node(request):
 def weight_table(request):
     nodes = models.Unit.objects.all()
     direct_relations = {}
+
     for node in nodes:
         direct_relations[node] = service.get_direct_relations(node)
-
     context = {
         'nodes': nodes,
         'direct_relations': direct_relations,
-                }
+        }
 
     return render_to_response('weight_table.html', context)
 
