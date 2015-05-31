@@ -1,48 +1,46 @@
 {% extends 'base.html' %}
 {% block title %}Редактирование узла{% endblock %}
-
+{% load weights_extras %}
 {% block content %}
+<form method="post">
 
-        {{ connected_nodes }}
-        {{ direct_connected_nodes }}
-        {{ weight_direct_nodes }}
-        <p>--------------</p>
-        <form method="post">
+    <span>
 
-            <span>
+        {{ node_name_form }}
+        {{ node_name_form.non_field_errors }}
+    </span>
 
-                {{ node_name_form }}
-                {{ node_name_form.non_field_errors }}
-            </span>
+    <div>Связи:
+        {% for other_node in other_nodes %}
+            <div class="node-information">
+                {{ other_node.name }}
 
-            <div>Связи:
-                {% for other_node in other_nodes %}
-                    <div class="node-information">
-                        {{ other_node.name }}
-
-                        <input class="node" type="checkbox" name="{{ other_node.id }}"
-                            {% if other_node in direct_connected_nodes and other_node in connected_nodes%}
-                                 checked >
-                            {% elif other_node in connected_nodes %}
-                                checked disabled >
-                            {% else %}
-                                >
-                            {% endif %}
-
-                        <input class="weight" type="text" name="{{ other_node.id }}" value=
-                            {% for node, weight in weight_direct_nodes.items %}
-                                {% if other_node == node %}
-                                    {{ weight }}
-                                {% endif %}
+                <input class="node" type="checkbox" name="{{ other_node.id }}"
+                    {% if other_node in direct_connected_nodes %}
+                         checked >
+                    {% elif other_node in relations %}
+                        checked disabled >
+                        <span>Существует путь к узлу через:
+                        {% with relations|value_by_key:other_node as relation %}
+                            {% for related_node in relation.0 %}
+                                {{ related_node }}
                             {% endfor %}
+                        {% endwith %}
+                        </span>
+                    {% else %}
                         >
+                    {% endif %}
+                <input class="weight" type="text" name="{{ other_node.id }}" value=
+                {% with relations|value_by_key:other_node as relation %}
+                    {{ relation.1 }}
+                {% endwith %}
+                0>
 
-
-                    </div>
-                {% endfor %}
             </div>
+        {% endfor %}
+    </div>
 
-            <div><input id="submit" type="submit" class="glyphicon-link" value="Сохранить"></div>
-        </form>
+    <div><input id="submit" type="submit" class="glyphicon-link" value="Сохранить"></div>
+</form>
 
 {% endblock %}

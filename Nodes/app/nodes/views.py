@@ -1,8 +1,8 @@
-from Nodes.app.nodes.forms import NodeForm
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
+from Nodes.app.nodes.forms import NodeForm
 from Nodes.app.nodes import models
 from Nodes.app.nodes import service
 
@@ -23,6 +23,7 @@ def edit_node(request, node_id):
 
     direct_connected_nodes = service.get_direct_connected_nodes(current_node)
     weight_direct_nodes = service.find_weight_direct_relations(current_node)
+    relations = service.get_node_relations(current_node)
 
     context = {
         'node_name_form': node_name_form,
@@ -31,6 +32,7 @@ def edit_node(request, node_id):
         'connected_nodes': connected_nodes,
         'direct_connected_nodes': direct_connected_nodes,
         'weight_direct_nodes': weight_direct_nodes,
+        'relations': relations,
     }
 
     if request.method == 'POST':
@@ -89,8 +91,6 @@ def weight_table(request):
         'nodes': nodes,
         'relations': relations,
     }
-
-
 
     return render_to_response('weight_table.html', context)
 
