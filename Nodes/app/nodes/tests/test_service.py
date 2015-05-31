@@ -157,6 +157,57 @@ class TestDirectRelations(TestCase):
                                                                           end=node3)})
 
 
+class TestNodeRelations(TestCase):
+    def test_path_to_related_nodes(self):
+        node1 = models.Unit.objects.create(name='A')
+        node2 = models.Unit.objects.create(name='B')
+        node3 = models.Unit.objects.create(name='C')
+        node4 = models.Unit.objects.create(name='D')
+        node5 = models.Unit.objects.create(name='E')
+
+        other_node_1 = models.Unit.objects.create(name='Z')
+        other_node_2 = models.Unit.objects.create(name='X')
+
+        models.Relationship.objects.create(start=node1, end=node2, value=1)
+        models.Relationship.objects.create(start=node2, end=node3, value=5)
+        models.Relationship.objects.create(start=node3, end=node4, value=1)
+        models.Relationship.objects.create(start=node4, end=node5, value=1)
+
+        models.Relationship.objects.create(start=other_node_1, end=other_node_2, value=1)
+
+        result = service.get_node_relations(node1)
+
+        for relation_node, (path_nodes, weight) in result.items():
+            if relation_node == node2:
+                self.assertEqual(path_nodes, [])
+                self.assertEqual(weight, 1)
+            elif relation_node == node3:
+                self.assertEqual(path_nodes, [node2])
+                self.assertEqual(weight, 6)
+            elif relation_node == node4:
+                self.assertEqual(path_nodes, [node2, node3])
+                self.assertEqual(weight, 7)
+            elif relation_node == node5:
+                self.assertEqual(path_nodes, [node2, node3, node4])
+                self.assertEqual(weight, 8)
+            else:
+                self.fail('Unexpected node: %s' % relation_node)
+
+    def test_single_relation(self):
+        node1 = models.Unit.objects.create(name='A')
+        node2 = models.Unit.objects.create(name='B')
+
+        models.Relationship.objects.create(start=node1, end=node2, value=1)
+
+        result = service.get_node_relations(node1)
+        self.assertEqual(result.keys(), [node2])
+
+        path, weight = result[node2]
+        self.assertEqual(path, [])
+        self.assertEqual(weight, 1)
+
+
+
 
 
 

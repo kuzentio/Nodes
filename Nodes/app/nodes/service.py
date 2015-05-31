@@ -1,27 +1,13 @@
-from Nodes.app.nodes import models
 from django.db.models import Q
 
-
-class Node(object):
-    def __init__(self, name):
-        self.name = name
-        self.relations = set()
-
-    def __eq__(self, other):
-        return self.name == other.name
-
-    def __repr__(self):
-        return "<%s>" % self.name
-
-    def add_relation(self, other_node):
-        self.relations.add(other_node)
-        other_node.relations.add(self)
+from Nodes.app.nodes import models
 
 
 class NodeRelation(object):
-    def __init__(self, node):
+    def __init__(self, node, weight):
         self.node = node
         self.path_nodes = []
+        self.weight = weight
 
     def __hash__(self):
         return hash(self.node)
@@ -31,11 +17,9 @@ class NodeRelation(object):
             other == other.node
         return self.node == other
 
-    def add_path_node(self, node):
+    def add_path_node(self, node, weight):
         self.path_nodes.append(node)
-
-    def __repr__(self):
-        return "<node: %s, path_nodes: %s>" % (self.node, self.path_nodes)
+        self.weight = self.weight + weight
 
 
 def get_node_relations(start_node):
@@ -43,26 +27,33 @@ def get_node_relations(start_node):
 
     def _walk_node_relations(node):
         node_relations = []
-        for related_node in node.relations:
+
+        for related_node, relation in get_direct_relations(node).items():
             if related_node in result_relations or related_node == start_node:
                 continue
 
-            relation = NodeRelation(related_node)
-            result_relations.add(relation)
-            node_relations.append(relation)
+            node_relation = NodeRelation(related_node, relation.value)
+            result_relations.add(node_relation)
+            node_relations.append(node_relation)
 
             for _relation in _walk_node_relations(related_node):
-                _relation.add_path_node(related_node)
+                _relation.add_path_node(related_node, relation.value)
                 node_relations.append(_relation)
 
         return node_relations
 
     _walk_node_relations(start_node)
 
-    return result_relations
+    nodes_path_info = {}
+    for result_relation in result_relations:
+        result_relation.path_nodes.reverse()
+        nodes_path_info[result_relation.node] = (result_relation.path_nodes, result_relation.weight)
+
+    return nodes_path_info
 
 
 def get_connected_nodes(start_node, result_nodes=None):
+    # TODO: remove this function
     result_nodes = result_nodes or {start_node}
 
     relations = models.Relationship.objects.filter(Q(start=start_node) | Q(end=start_node))
@@ -79,6 +70,7 @@ def get_connected_nodes(start_node, result_nodes=None):
         )
 
     return result_nodes - {start_node}
+
 
 def setup_actual_relations(node, actual_node_weighs):
     current_direct_connected_nodes_ids = set([n.id for n in get_direct_connected_nodes(node)])
@@ -116,27 +108,9 @@ def _create_relations(node, nodes_to_create, actual_node_weighs):
                                            end=related_node,
                                            value=actual_node_weighs[node_to_create])
 
-# def relation_between_nodes(node1, node2):
-#     try:
-#         return models.Relationship.objects.get(
-#             (Q(start=node1) & Q(end=node2)) | (Q(start=node2) & Q(end=node1)))
-#     except models.Relationship.DoesNotExist:
-#         pass
-#
-
-# def find_weight_direct_relations(current_node, direct_related_nodes):
-#     related_nodes = {}
-#     for direct_related_node in direct_related_nodes:
-#         relation = models.Relationship.objects.filter(
-#             Q(start=direct_related_node, end=current_node) |
-#             Q(start=current_node, end=direct_related_node)
-#         )
-#         related_nodes[direct_related_node] = relation[0].value
-#
-#     return related_nodes
-
 
 def find_weight_direct_relations(node):
+    # TODO: Remove this function
     related_nodes = get_direct_connected_nodes(node)
     weight = {}
     for related_node in related_nodes:
@@ -159,13 +133,3 @@ def get_direct_relations(node):
 
 def get_direct_connected_nodes(start_node):
     return get_direct_relations(start_node).keys()
-
-
-
-
-
-
-
-
-
-

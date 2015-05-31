@@ -7,22 +7,28 @@
 <table class="table">
     <tbody>
         <tr>
-            <th> </th>
+            <th></th>
+
             {% for node in nodes %}
                 <th> {{ node.name }} </th>
             {% endfor %}
         </tr>
         <tr>
             {% for node in nodes %}
-            <th> {{ node.name }}</th>
-                {% with direct_relations|value_by_key:node as direct_relations %}
-                    {% for inner_node in nodes %}
-                        {% if inner_node in direct_relations %}
-                            {% with direct_relations|value_by_key:inner_node as inner_relation %}
-                                <td>{{ inner_relation.value }}</td>
+                <th> {{ node.name }}</th>
+
+                {% with relations|value_by_key:node as related_nodes_info %}
+                    {% for other_node in nodes %}
+                        {% if other_node in related_nodes_info %}
+                            {% with related_nodes_info|value_by_key:other_node as inner_relation %}
+                                <td>{{ inner_relation.1 }}</td>
                             {% endwith %}
                         {% else %}
-                            <td>0</td>
+                            <td>
+                            {% if other_node == node %}
+                                0
+                            {% endif %}
+                            </td>
                         {% endif %}
                     {% endfor %}
                 {% endwith %}
@@ -31,7 +37,6 @@
     </tbody>
 </table>
 
-
-
+<a href="/" class="pull-left">Назад</a>
 
 {% endblock %}

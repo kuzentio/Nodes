@@ -36,17 +36,15 @@ def edit_node(request, node_id):
     if request.method == 'POST':
         if not node_name_form.is_valid():
             return render_to_response('edit.html', context=context)
-        else:
-            node = models.Unit.objects.get(id=node_id)
-            node.name = node_name_form.cleaned_data['name']
-            node.save()
+        node_name_form.save()
 
         actual_weights = {}
         for id, weight in request.POST.iteritems():
             try:
                 actual_weights[int(id)] = int(weight)
-            except:
+            except ValueError:
                 continue
+
         service.setup_actual_relations(current_node, actual_weights)
         return redirect('/')
     return render_to_response('edit.html', context=context)
@@ -60,20 +58,21 @@ def create_node(request):
     context = {
         'node_name_form': node_name_form,
         'other_nodes': nodes,
-            }
+    }
+
     if request.method == 'POST':
         if not node_name_form.is_valid():
             return render_to_response('edit.html', context=context)
-        else:
-            current_node = models.Unit.objects.create(name=node_name_form.cleaned_data['name'])
+        current_node = models.Unit.objects.create(name=node_name_form.cleaned_data['name'])
 
-            actual_weights = {}
-            for id, weight in request.POST.iteritems():
-                try:
-                    actual_weights[int(id)] = int(weight)
-                except:
-                    continue
-            service.setup_actual_relations(current_node, actual_weights)
+        actual_weights = {}
+        for id, weight in request.POST.iteritems():
+            try:
+                actual_weights[int(id)] = int(weight)
+            except ValueError:
+                continue
+
+        service.setup_actual_relations(current_node, actual_weights)
         return redirect('/')
 
     return render_to_response('edit.html', context)
@@ -81,14 +80,17 @@ def create_node(request):
 
 def weight_table(request):
     nodes = models.Unit.objects.all()
-    direct_relations = {}
+    relations = {}
 
     for node in nodes:
-        direct_relations[node] = service.get_direct_relations(node)
+        relations[node] = service.get_node_relations(node)
+
     context = {
         'nodes': nodes,
-        'direct_relations': direct_relations,
-        }
+        'relations': relations,
+    }
+
+
 
     return render_to_response('weight_table.html', context)
 
