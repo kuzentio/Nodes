@@ -98,3 +98,6 @@ def get_direct_relations(node):
 
     return node_relations
 
+
+def get_direct_connected_nodes(start_node):
+    return get_direct_relations(start_node).keys()
