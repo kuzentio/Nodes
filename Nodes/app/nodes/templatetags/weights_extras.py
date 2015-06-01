@@ -7,7 +7,7 @@ register = template.Library()
 def value_by_key(dict, key):
     try:
         return dict[key]
-    except KeyError:
+    except TypeError:
         pass
 
 
