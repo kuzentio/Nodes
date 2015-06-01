@@ -15,23 +15,17 @@ def main(request):
 def edit_node(request, node_id):
 
     current_node = get_object_or_404(models.Unit, id=node_id)
+    other_nodes = models.Unit.objects.all().exclude(id=node_id)
+    direct_connected_nodes = service.get_direct_relations(current_node).keys()
+    relations = service.get_node_relations(current_node)
 
     node_name_form = NodeForm(request.POST or None, instance=current_node)
-
-    other_nodes = models.Unit.objects.all().exclude(id=node_id)
-    connected_nodes = service.get_connected_nodes(current_node)
-
-    direct_connected_nodes = service.get_direct_connected_nodes(current_node)
-    weight_direct_nodes = service.find_weight_direct_relations(current_node)
-    relations = service.get_node_relations(current_node)
 
     context = {
         'node_name_form': node_name_form,
         'other_nodes': other_nodes,
         'current_node': current_node,
-        'connected_nodes': connected_nodes,
         'direct_connected_nodes': direct_connected_nodes,
-        'weight_direct_nodes': weight_direct_nodes,
         'relations': relations,
     }
 

@@ -52,26 +52,6 @@ def get_node_relations(start_node):
     return nodes_path_info
 
 
-def get_connected_nodes(start_node, result_nodes=None):
-    # TODO: remove this function
-    result_nodes = result_nodes or {start_node}
-
-    relations = models.Relationship.objects.filter(Q(start=start_node) | Q(end=start_node))
-
-    for relation in relations:
-        connected_node = relation.end if relation.start == start_node else relation.start
-
-        if connected_node in result_nodes:
-            continue
-
-        result_nodes.add(connected_node)
-        result_nodes.update(
-            get_connected_nodes(connected_node, result_nodes=result_nodes)
-        )
-
-    return result_nodes - {start_node}
-
-
 def setup_actual_relations(node, actual_node_weighs):
     current_direct_connected_nodes_ids = set([n.id for n in get_direct_connected_nodes(node)])
     actual_node_ids = set(actual_node_weighs.keys())
@@ -93,7 +73,6 @@ def _delete_relations(node, nodes_to_delete):
 
 def _update_relations(node, nodes_to_update, actual_node_weighs):
     for node_to_update in nodes_to_update:
-        # TODO: use objects.update
         related_node = models.Unit.objects.get(id=node_to_update)
         relation = models.Relationship.objects.get(Q(start=node, end=related_node) |
                                         Q(start=related_node, end=node))
@@ -109,17 +88,6 @@ def _create_relations(node, nodes_to_create, actual_node_weighs):
                                            value=actual_node_weighs[node_to_create])
 
 
-def find_weight_direct_relations(node):
-    # TODO: Remove this function
-    related_nodes = get_direct_connected_nodes(node)
-    weight = {}
-    for related_node in related_nodes:
-        weight[related_node] = models.Relationship.objects.get(Q(start=node, end=related_node) |
-                                        Q(start=related_node, end=node)).value
-
-    return weight
-
-
 def get_direct_relations(node):
     relations = models.Relationship.objects.filter(Q(start=node) | Q(end=node))
 
@@ -130,6 +98,3 @@ def get_direct_relations(node):
 
     return node_relations
 
-
-def get_direct_connected_nodes(start_node):
-    return get_direct_relations(start_node).keys()
