@@ -92,5 +92,5 @@ def weight_table(request):
 @require_POST
 def remove_node(request, node_id):
     models.Unit.objects.get(id=node_id).delete()
-    return HttpResponseRedirect('/')
+    return redirect('/')
 
